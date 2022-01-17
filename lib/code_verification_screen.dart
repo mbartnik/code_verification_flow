@@ -58,15 +58,15 @@ class CodeVerificationHeader extends StatelessWidget {
   }
 }
 
-class VerificationSection extends HookWidget {
+class VerificationSection extends HookConsumerWidget {
   const VerificationSection({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final pin2FocusNode = useFocusNode();
     final pin3FocusNode = useFocusNode();
     final pin4FocusNode = useFocusNode();
-    final phoneNr = useProvider(currentPhoneNrProvider.notifier);
+    final phoneNr = ref.watch(currentPhoneNrProvider.notifier);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: Row(
@@ -75,8 +75,8 @@ class VerificationSection extends HookWidget {
           CodeTextField(
               codeIndex: 1,
               onChanged: (value) {
-                _onCodeChanged(context, value, pin2FocusNode, phoneNr.state);
-                final codeVerificationScreenState = context
+                _onCodeChanged(ref, value, pin2FocusNode, phoneNr.state);
+                final codeVerificationScreenState = ref
                     .read(codeVerificationScreenStateProvider(phoneNr.state));
                 codeVerificationScreenState.pin1 = value;
               }),
@@ -84,8 +84,8 @@ class VerificationSection extends HookWidget {
               codeIndex: 2,
               focusNode: pin2FocusNode,
               onChanged: (value) {
-                _onCodeChanged(context, value, pin3FocusNode, phoneNr.state);
-                final codeVerificationScreenState = context
+                _onCodeChanged(ref, value, pin3FocusNode, phoneNr.state);
+                final codeVerificationScreenState = ref
                     .read(codeVerificationScreenStateProvider(phoneNr.state));
                 codeVerificationScreenState.pin2 = value;
               }),
@@ -93,8 +93,8 @@ class VerificationSection extends HookWidget {
               codeIndex: 3,
               focusNode: pin3FocusNode,
               onChanged: (value) {
-                _onCodeChanged(context, value, pin4FocusNode, phoneNr.state);
-                final codeVerificationScreenState = context
+                _onCodeChanged(ref, value, pin4FocusNode, phoneNr.state);
+                final codeVerificationScreenState = ref
                     .read(codeVerificationScreenStateProvider(phoneNr.state));
                 codeVerificationScreenState.pin3 = value;
               }),
@@ -102,8 +102,8 @@ class VerificationSection extends HookWidget {
               codeIndex: 4,
               focusNode: pin4FocusNode,
               onChanged: (value) {
-                _onCodeChanged(context, value, null, phoneNr.state);
-                final codeVerificationScreenState = context
+                _onCodeChanged(ref, value, null, phoneNr.state);
+                final codeVerificationScreenState = ref
                     .read(codeVerificationScreenStateProvider(phoneNr.state));
                 codeVerificationScreenState.pin4 = value;
                 if (value.length == 1) {
@@ -121,10 +121,10 @@ class VerificationSection extends HookWidget {
     }
   }
 
-  _onCodeChanged(BuildContext context, String text, FocusNode? nextFocusNode,
-      String phoneNr) {
+  _onCodeChanged(
+      WidgetRef ref, String text, FocusNode? nextFocusNode, String phoneNr) {
     final codeVerificationScreenState =
-        context.read(codeVerificationScreenStateProvider(phoneNr));
+        ref.read(codeVerificationScreenStateProvider(phoneNr));
     codeVerificationScreenState.codeError = false;
     if (nextFocusNode != null) {
       nextField(text, nextFocusNode);
@@ -158,13 +158,13 @@ class CodeVerificationBottomText extends StatelessWidget {
   }
 }
 
-class PinError extends HookWidget {
+class PinError extends HookConsumerWidget {
   const PinError({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final phoneNr = useProvider(currentPhoneNrProvider.notifier);
-    final codeError = useProvider(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final phoneNr = ref.watch(currentPhoneNrProvider.notifier);
+    final codeError = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .select((value) => value.codeError));
     return Visibility(
@@ -180,16 +180,16 @@ class PinError extends HookWidget {
   }
 }
 
-class CodeVerificationNextButton extends HookWidget {
+class CodeVerificationNextButton extends HookConsumerWidget {
   const CodeVerificationNextButton({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final phoneNr = useProvider(currentPhoneNrProvider.notifier);
-    final codeExpired = useProvider(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final phoneNr = ref.watch(currentPhoneNrProvider.notifier);
+    final codeExpired = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .select((value) => value.codeExpired));
-    bool active = useProvider(codeVerificationScreenStateProvider(phoneNr.state)
+    bool active = ref.watch(codeVerificationScreenStateProvider(phoneNr.state)
         .select((value) => value.isNextButtonActive));
     return Opacity(
       opacity: (active || codeExpired) ? 1 : 0.7,
@@ -198,7 +198,7 @@ class CodeVerificationNextButton extends HookWidget {
           child: FloatingActionButton.extended(
               heroTag: null,
               onPressed: () {
-                final codeVerificationScreenState = context
+                final codeVerificationScreenState = ref
                     .read(codeVerificationScreenStateProvider(phoneNr.state));
                 FocusScope.of(context).unfocus();
                 if (codeVerificationScreenState.codeExpired) {
@@ -228,30 +228,29 @@ class CodeVerificationNextButton extends HookWidget {
   }
 }
 
-class Counter extends HookWidget {
+class Counter extends HookConsumerWidget {
   const Counter({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final phoneNr = useProvider(currentPhoneNrProvider.notifier);
-    final isCodeVerified = useProvider(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final phoneNr = ref.watch(currentPhoneNrProvider.notifier);
+    final isCodeVerified = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .select((value) => value.isCodeVerified));
-    final endTime = useProvider(
-        codeVerificationScreenStateProvider(phoneNr.state)
-            .notifier
-            .select((value) => value.endTime));
-    final codeError = useProvider(
+    final endTime = ref.watch(codeVerificationScreenStateProvider(phoneNr.state)
+        .notifier
+        .select((value) => value.endTime));
+    final codeError = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .select((value) => value.codeError));
-    final recreateTimer = useProvider(
+    final recreateTimer = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .notifier
             .select((value) => value.recreateTimer));
     final isMounted = useIsMounted();
     final controller = useCountdownTimerController(
         endTime: endTime,
-        onEnd: () => onEnd(context, isMounted()),
+        onEnd: () => onEnd(ref, isMounted()),
         keys: [recreateTimer]);
     return Visibility(
       visible: !codeError,
@@ -264,7 +263,7 @@ class Counter extends HookWidget {
               )
             : CountdownTimer(
                 controller: controller.isRunning ? controller : null,
-                onEnd: () => onEnd(context, isMounted()),
+                onEnd: () => onEnd(ref, isMounted()),
                 endTime: endTime,
                 widgetBuilder: (_, CurrentRemainingTime? time) {
                   if (time == null) {
@@ -285,11 +284,11 @@ class Counter extends HookWidget {
     );
   }
 
-  void onEnd(BuildContext context, bool mounted) {
+  void onEnd(WidgetRef ref, bool mounted) {
     if (mounted) {
-      final phoneNr = context.read(currentPhoneNrProvider);
+      final phoneNr = ref.read(currentPhoneNrProvider.notifier);
       final codeVerificationScreenState =
-          context.read(codeVerificationScreenStateProvider(phoneNr.state));
+          ref.read(codeVerificationScreenStateProvider(phoneNr.state));
       if (!codeVerificationScreenState.isCodeVerified) {
         WidgetsBinding.instance!.addPostFrameCallback((_) {
           codeVerificationScreenState.disableMaintainState();
@@ -300,7 +299,7 @@ class Counter extends HookWidget {
   }
 }
 
-class CodeTextField extends HookWidget {
+class CodeTextField extends HookConsumerWidget {
   final int codeIndex;
   final FocusNode? focusNode;
   final Function(String) onChanged;
@@ -313,13 +312,13 @@ class CodeTextField extends HookWidget {
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final textEditingController = useTextEditingController();
-    final phoneNr = useProvider(currentPhoneNrProvider.notifier);
-    final codeError = useProvider(
+    final phoneNr = ref.watch(currentPhoneNrProvider.notifier);
+    final codeError = ref.watch(
         codeVerificationScreenStateProvider(phoneNr.state)
             .select((value) => value.codeError));
-    final pin = useProvider(codeVerificationScreenStateProvider(phoneNr.state)
+    final pin = ref.watch(codeVerificationScreenStateProvider(phoneNr.state)
         .notifier
         .select((value) {
       switch (codeIndex) {

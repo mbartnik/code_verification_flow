@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class CodeVerificationScreenState extends ChangeNotifier {
-  final AutoDisposeProviderReference _ref;
+  final AutoDisposeChangeNotifierProviderRef _ref;
 
   // this variable holds the code that otherwise would be sent to us
   String? _code;
@@ -73,7 +73,7 @@ class CodeVerificationScreenState extends ChangeNotifier {
   }
 
   CodeVerificationScreenState(this._ref) {
-    final phoneNr = _ref.read(currentPhoneNrProvider);
+    final phoneNr = _ref.read(currentPhoneNrProvider.notifier);
     requestVerificationCode(phoneNr.state, false);
   }
 

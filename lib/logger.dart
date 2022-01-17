@@ -14,13 +14,14 @@ class Logger extends ProviderObserver {
 */
 
   @override
-  void didDisposeProvider(ProviderBase provider) {
+  void didDisposeProvider(ProviderBase provider, ProviderContainer containers) {
     debugPrint(
         '''didDisposeProvider {  "provider": "${provider.name ?? provider.runtimeType}", "argument:" "${provider.argument.toString()}"}''');
   }
 
   @override
-  void didAddProvider(ProviderBase provider, Object? value) {
+  void didAddProvider(
+      ProviderBase provider, Object? value, ProviderContainer container) {
     debugPrint(
         '''didAddProvider {  "provider": "${provider.name ?? provider.runtimeType}",  "newValue": "$value", "argument:" "${provider.argument.toString()}"}''');
   }

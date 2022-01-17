@@ -54,14 +54,14 @@ class PhoneNumberHeader extends StatelessWidget {
   }
 }
 
-class PhoneNumberNextButton extends HookWidget {
+class PhoneNumberNextButton extends HookConsumerWidget {
   const PhoneNumberNextButton({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final phoneNumberScreenState = useProvider(phoneNumberScreenStateProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final phoneNumberScreenState = ref.watch(phoneNumberScreenStateProvider);
     bool keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0.0;
     bool active = phoneNumberScreenState.isNextButtonEnabled;
     return Visibility(
@@ -76,17 +76,19 @@ class PhoneNumberNextButton extends HookWidget {
                   FocusScope.of(context).unfocus();
                   if (active && phoneNumberScreenState.checkValidations()) {
                     final phoneNumberScreenState =
-                        context.read(phoneNumberScreenStateProvider);
-                    final currentPhoneNr = context.read(currentPhoneNrProvider);
+                        ref.read(phoneNumberScreenStateProvider);
+                    final currentPhoneNr =
+                        ref.read(currentPhoneNrProvider.notifier);
                     currentPhoneNr.state = phoneNumberScreenState.phoneNumber;
                     final phoneNumbersInVerification =
-                        context.read(phoneNumbersInVerificationProvider);
+                        ref.read(phoneNumbersInVerificationProvider);
                     phoneNumbersInVerification
                         .add(phoneNumberScreenState.phoneNumber);
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const CodeVerificationScreen()));
+                            builder: (context) =>
+                                const CodeVerificationScreen()));
                   }
                 },
                 label: const SizedBox(
@@ -105,14 +107,14 @@ class PhoneNumberNextButton extends HookWidget {
   }
 }
 
-class UserPhoneSection extends HookWidget {
+class UserPhoneSection extends HookConsumerWidget {
   const UserPhoneSection({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final phoneError = useProvider(phoneNumberScreenStateProvider
+  Widget build(BuildContext context, WidgetRef ref) {
+    final phoneError = ref.watch(phoneNumberScreenStateProvider
         .select((phoneNumberScreenState) => phoneNumberScreenState.phoneError));
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -130,7 +132,7 @@ class UserPhoneSection extends HookWidget {
               child: TextField(
                 onChanged: (value) {
                   final phoneNumberScreenState =
-                      context.read(phoneNumberScreenStateProvider);
+                      ref.read(phoneNumberScreenStateProvider);
                   phoneNumberScreenState.phoneNumber = value;
                   phoneNumberScreenState.phoneError = false;
                 },

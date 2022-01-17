@@ -55,16 +55,16 @@ class NewPasswordHeader extends StatelessWidget {
   }
 }
 
-class NewPasswordSection extends HookWidget {
+class NewPasswordSection extends HookConsumerWidget {
   const NewPasswordSection({
     Key? key,
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final obscurePass = useProvider(
+  Widget build(BuildContext context, WidgetRef ref) {
+    final obscurePass = ref.watch(
         newPasswordScreenStateProvider.select((value) => value.obscurePass));
-    final passError = useProvider(
+    final passError = ref.watch(
         newPasswordScreenStateProvider.select((value) => value.passError));
     return Padding(
       padding: const EdgeInsets.only(top: 16),
@@ -82,7 +82,7 @@ class NewPasswordSection extends HookWidget {
               child: TextField(
                 onChanged: (value) {
                   final newPasswordScreenState =
-                      context.read(newPasswordScreenStateProvider);
+                      ref.read(newPasswordScreenStateProvider);
                   newPasswordScreenState.userPass = value;
                   newPasswordScreenState.passError = false;
                 },
@@ -91,7 +91,7 @@ class NewPasswordSection extends HookWidget {
                   suffixIcon: GestureDetector(
                       onTap: () {
                         final newPasswordScreenState =
-                            context.read(newPasswordScreenStateProvider);
+                            ref.read(newPasswordScreenStateProvider);
                         newPasswordScreenState.obscurePass =
                             !newPasswordScreenState.obscurePass;
                       },
@@ -129,13 +129,13 @@ class NewPasswordSection extends HookWidget {
   }
 }
 
-class ChangePasswordButton extends HookWidget {
+class ChangePasswordButton extends HookConsumerWidget {
   const ChangePasswordButton({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
-    bool active = useProvider(newPasswordScreenStateProvider
+    bool active = ref.watch(newPasswordScreenStateProvider
         .select((value) => value.isNextButtonEnabled));
     return Visibility(
       visible: !keyboardIsOpened,
@@ -147,14 +147,14 @@ class ChangePasswordButton extends HookWidget {
                 heroTag: null,
                 onPressed: () {
                   final newPasswordScreenState =
-                      context.read(newPasswordScreenStateProvider);
+                      ref.read(newPasswordScreenStateProvider);
                   FocusScope.of(context).unfocus();
                   if (active && newPasswordScreenState.checkValidations()) {
-                    context.read(currentPhoneNrProvider).dispose();
+                    ref.read(currentPhoneNrProvider.notifier).dispose();
                     final phoneNumbersInVerification =
-                        context.read(phoneNumbersInVerificationProvider);
+                        ref.read(phoneNumbersInVerificationProvider);
                     for (final phoneNumber in phoneNumbersInVerification) {
-                      context
+                      ref
                           .read(
                               codeVerificationScreenStateProvider(phoneNumber))
                           .dispose();
